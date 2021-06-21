@@ -6,6 +6,10 @@
     <home-swiper :banners="banners"/>
     <RecommendView :recommends="recommends"/>
     <FeatureView/>
+    <tab-control class="tab-control"
+                 :titles="['流行', '新款', '精选']"
+                 @tabClick="tabClick"/>
+    <goods-list :goods="showGoods"/>
 
     <ul>
       <li>列表1</li>
@@ -113,43 +117,102 @@
 </template>
 
 <script>
-  import NavBar from "components/common/navbar/NavBar";
   import HomeSwiper from "./childComps/HomeSwiper";
   import RecommendView from "./childComps/RecommendView";
   import FeatureView from "./childComps/FeatureView";
 
+  import NavBar from "components/common/navbar/NavBar";
+  import TabControl from "components/content/tabControl/TabControl";
+  import GoodsList from "components/content/goods/GoodsList";
 
-  import {getHomeMultidata} from "network/home";
+  import {getHomeMultidata, getHomeGoods} from "network/home";
   import {getHomeRecommend} from "network/home";
 
   export default {
     name: "Home",
     components: {
-      NavBar,
       HomeSwiper,
       RecommendView,
-      FeatureView
+      FeatureView,
+      NavBar,
+      TabControl,
+      GoodsList
     },
     data() {
       return {
         banners: [],
-        recommends: []
+        recommends: [],
+        goods: {
+          'recommend': {page: 0, list: []},
+          'new': {page: 0, list: []},
+          'sales': {page: 0, list: []}
+        },
+        currentType: 'recommend'
+      }
+    },
+    computed: {
+      showGoods() {
+        return this.goods[this.currentType].list
       }
     },
     created() {
-      getHomeMultidata().then(res => {
-        console.log(res);
+      // 1.请求轮播图数据
+      this.getHomeMultidata()
 
-        this.banners = res.slides
-        // this.recommends = res.data.recommend.list
-      })
+      // 2.请求推荐商品数据
+      this.getHomeRecommend()
 
-      getHomeRecommend().then(res => {
-        console.log(res);
+      // 3.请求商品数据
+      this.getHomeGoods('recommend')
+      this.getHomeGoods('new')
+      this.getHomeGoods('sales')
 
-        this.recommends = res.slides
-      })
 
+    },
+    methods: {
+      /**
+       * 事件监听相关的方法
+       */
+      tabClick(index) {
+        console.log(index);
+        switch (index) {
+          case 0:
+            this.currentType = 'recommend'
+            break
+          case 1:
+            this.currentType = 'new'
+            break
+          case 2:
+            this.currentType = 'sales'
+            break
+          default:
+            this.currentType = 'recommend'
+        }
+      },
+
+
+      /**
+       * 网络请求相关的方法
+       */
+      getHomeMultidata() {
+        getHomeMultidata().then(res => {
+          this.banners = res.slides
+          // this.recommends = res.data.recommend.list
+        })
+      },
+      getHomeRecommend() {
+        getHomeRecommend().then(res => {
+          this.recommends = res.slides
+        })
+      },
+      getHomeGoods(type) {
+        const page = this.goods[type].page + 1
+        getHomeGoods(type, page).then(res => {
+          console.log(res.goods.data);
+          this.goods[type].list.push(...res.goods.data)
+          this.goods[type].page += 1
+        })
+      }
     }
   }
 </script>
@@ -167,6 +230,14 @@
     left: 0;
     right: 0;
     top: 0;
+    z-index: 9;
+  }
+
+  .tab-control {
+    /*黏性定位，可以控制滑倒什么位置就自动设置样式为absolute*/
+    position: sticky;
+    top: 44px;
+
     z-index: 9;
   }
 </style>
