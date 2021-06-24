@@ -3,7 +3,7 @@
     <NavBar class="home-nav">
       <div slot="center">购物车</div>
     </NavBar>
-    <Scroll class="content">
+    <Scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <home-swiper :banners="banners"/>
       <RecommendView :recommends="recommends"/>
       <FeatureView/>
@@ -12,7 +12,7 @@
                    @tabClick="tabClick"/>
       <goods-list :goods="showGoods"/>
     </Scroll>
-
+    <back-top @click.native="backClick" v-show="isShowBackTop"/>
   </div>
 </template>
 
@@ -25,6 +25,7 @@
   import TabControl from "components/content/tabControl/TabControl";
   import GoodsList from "components/content/goods/GoodsList";
   import Scroll from "components/common/scroll/Scroll";
+  import BackTop from "components/content/backTop/BackTop";
 
   import {getHomeMultidata, getHomeGoods} from "network/home";
   import {getHomeRecommend} from "network/home";
@@ -38,7 +39,8 @@
       NavBar,
       TabControl,
       GoodsList,
-      Scroll
+      Scroll,
+      BackTop
     },
     data() {
       return {
@@ -49,7 +51,8 @@
           'new': {page: 0, list: []},
           'sales': {page: 0, list: []}
         },
-        currentType: 'recommend'
+        currentType: 'recommend',
+        isShowBackTop: false
       }
     },
     computed: {
@@ -62,7 +65,7 @@
       this.getHomeMultidata()
 
       // 2.请求推荐商品数据
-      this.getHomeRecommend()
+      // this.getHomeRecommend()
 
       // 3.请求商品数据
       this.getHomeGoods('recommend')
@@ -91,22 +94,29 @@
             this.currentType = 'recommend'
         }
       },
-
-
+      backClick() {
+        console.log('---');
+        this.$refs.scroll.scrollTo(0, 0, 750)
+      },
+      contentScroll(position) {
+        this.isShowBackTop = (-position.y) > 600
+      },
       /**
        * 网络请求相关的方法
        */
       getHomeMultidata() {
         getHomeMultidata().then(res => {
+          // console.log(res);
           this.banners = res.slides
+          this.recommends = res.slides
           // this.recommends = res.data.recommend.list
         })
       },
-      getHomeRecommend() {
-        getHomeRecommend().then(res => {
-          this.recommends = res.slides
-        })
-      },
+      // getHomeRecommend() {
+      //   getHomeRecommend().then(res => {
+      //     this.recommends = res.slides
+      //   })
+      // },
       getHomeGoods(type) {
         const page = this.goods[type].page + 1
         getHomeGoods(type, page).then(res => {
