@@ -68,8 +68,7 @@
         isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
-        saveY: 0,
-        itemImgListener: null
+        saveY: 0
       }
     },
     computed: {
