@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <NavBar class="home-nav">
-      <div slot="center">购物车</div>
+      <div slot="center">首页</div>
     </NavBar>
     <tab-control :titles="['流行', '新款', '精选']"
                  @tabClick="tabClick"

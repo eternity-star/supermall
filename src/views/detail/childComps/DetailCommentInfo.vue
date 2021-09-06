@@ -5,7 +5,7 @@
       <div class="title-right">更多</div>
     </div>
     <div v-if="!commentInfo" class="goodsIf">
-      <div v-for="item in commentInfo.content">
+      <div v-for="(item,index) in commentInfo.content" :key="index">
         <div>{{item}}</div>
       </div>
     </div>

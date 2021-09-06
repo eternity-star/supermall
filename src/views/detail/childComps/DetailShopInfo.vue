@@ -3,7 +3,7 @@
       <div class="wenben1"><span>商品详情</span></div>
       <div v-if="!goods.details"><div>详情为空</div></div>
       <div v-else class="wenben2">
-        <div v-html="goods.details">{{goods.details}}</div>
+        <div v-html="goods.details" class="details-img">{{goods.details}}</div>
       </div>
 
     </div>
@@ -65,5 +65,9 @@
   /*  height: 300px;*/
   /*}*/
 
+  .details-img >>> img{
+    width: 100%;
+    height: 200%;
+  }
 
 </style>
